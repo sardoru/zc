@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --color-amber-50: #fffbeb;
+  --color-amber-100: #fef3c7;
+  --color-amber-200: #fde68a;
+  --color-amber-300: #fcd34d;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+  --color-amber-800: #92400e;
+  --color-amber-900: #78350f;
+  --color-amber-950: #451a03;
+}
+
+html {
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* Signature canvas */
+.signature-canvas {
+  touch-action: none;
+}
