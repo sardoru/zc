@@ -1,114 +1,201 @@
 # Zacher Construction Management App
 
-**Client:** Ryan Zacher — Zacher Construction LLC
-**Built by:** Sardor Umarov (bespoke software)
+> Bespoke construction management platform built for **Zacher Construction LLC**. Designed for a solo operator running subcontractors — fast, mobile-first, and built to eliminate admin overhead.
 
-## Overview
-Full-stack construction management platform — mobile, tablet, and desktop responsive. Estimates, e-signatures, QuickBooks integration, PDF exports, AI-powered photo analysis, punch lists, and automated quote estimation.
+---
 
-## Core Features
+## 🎯 Problem
 
-### 1. Estimates & Quotes
-- Quick intake form for initial scoping (further talks, not final pricing)
-- Auto-price based on market-rate man-hours per trade/task
-- Labor rate database by trade (electrical, plumbing, HVAC, drywall, etc.)
-- Material cost estimation
-- Line-item breakdowns with subtotals
-- PDF export of quotes/estimates for clients (branded, professional)
+Running a one-man construction operation means wearing every hat: estimating jobs, coordinating subs, tracking punch lists, chasing signatures, invoicing clients, and documenting everything — often from the cab of a truck. Existing tools are either enterprise bloatware or too basic to be useful.
 
-### 2. E-Signatures
-- Digital signature capture on estimates, contracts, change orders
-- Signature audit trail with timestamps
-- Mobile-friendly touch signing
+**This app is Ryan's second brain.** It handles the mundane so he can focus on the work.
 
-### 3. QuickBooks Integration
-- Direct sync or CSV/IIF export
-- Invoice generation from approved estimates
-- Expense tracking per project
-- P&L per project
+---
 
-### 4. PDF Reports & Exports
-- Professional branded estimate/quote PDFs
-- Project progress reports
-- Punch list reports per project/unit
-- Photo documentation reports
-- Financial summaries
+## ✨ Features
 
-### 5. AI Photo Analysis
-- Take/upload photos of job sites
-- AI analyzes what was done correctly vs. issues found
-- Identifies which subcontractor needs to review/fix
-- Photo tagged to project → unit → room/area
-- Before/after comparison support
-- Generates inspection notes automatically
+### 📋 Estimate Builder
+- **Quick intake form** — project type, sq footage, scope checkboxes → ballpark estimate in seconds
+- **Market-rate pricing engine** — auto-calculates man-hours per trade at current market rates
+- **Line-item breakdowns** — labor, materials, subtotals, margins
+- **Estimate templates** — save common job types, clone & tweak per project
+- **PDF export** — branded, professional quotes ready to send to clients
 
-### 6. Punch Lists
-- Per project, per unit granularity
-- Assign items to subcontractors
-- Status tracking (open → in progress → resolved → verified)
-- Photo attachment per punch item
-- Due dates and priority levels
-- Filter/sort by trade, status, unit
+### ✍️ E-Signatures
+- **Touch-friendly signing** — works on phone, tablet, desktop
+- **Sign estimates, contracts, change orders** in-app
+- **Audit trail** — timestamped signature records for every document
+- **Client signing** — shareable link, no account required
 
-### 7. Quote Estimator (Quick Intake)
-- Simplified form: project type, sq footage, scope of work checkboxes
-- Auto-generates ballpark estimate based on market rates
-- Man-hours calculation per trade
-- Designed as conversation starter, not final bid
-- Exportable as PDF for client discussion
+### 🏗️ Project Management
+- **Project dashboard** — one screen shows what needs attention *today*
+- **Per-project, per-unit punch lists** — create, assign to subs, track status
+- **Status workflow** — Open → In Progress → Resolved → Verified
+- **Photo attachments** per punch item with before/after support
+- **Due dates & priority levels** — never lose track of what's overdue
+- **Filter by trade, status, unit** — find anything instantly
 
-## Design Requirements
-- **Responsive:** Mobile-first → tablet → desktop
-- **Dark & Light mode:** Toggle with localStorage persistence
-- Light: warm off-white, strong shadows/contrast between cards
-- Dark: deep blacks, glass morphism, subtle borders
-- **Professional UI/UX:** Clean typography, consistent spacing, intuitive navigation
-- **Fluid typography:** clamp() for responsive font sizes
-- **Touch-friendly:** 44px minimum tap targets
-- **Test breakpoints:** 375px / 768px / 1024px / 1440px
+### 🤖 AI Photo Analysis
+- **Snap a photo on-site** → AI analyzes the work
+- **Flags what's correct** and what needs attention
+- **Identifies which subcontractor** should review/fix the issue
+- **Auto-generates inspection notes** — no typing required
+- **Photos tagged** to project → unit → room/area for full traceability
 
-## Tech Stack (TBD)
-- **Frontend:** React + Vite (or Next.js for SSR)
-- **UI:** Tailwind CSS + shadcn/ui (or similar component library)
-- **Backend:** Node.js / Express or Next.js API routes
-- **Database:** PostgreSQL (Supabase?) or Firebase
-- **Auth:** Clerk / Supabase Auth / NextAuth
-- **AI:** OpenAI Vision API or Google Gemini for photo analysis
-- **PDF:** React-PDF or Puppeteer for server-side generation
-- **E-Sign:** Custom canvas signature or DocuSign/HelloSign API
-- **QuickBooks:** Intuit QuickBooks Online API (OAuth 2.0)
-- **Storage:** S3 / Supabase Storage for photos
-- **Hosting:** Vercel / Railway
+### 👷 Sub Coordination
+- **Assign punch items to subs** with one tap
+- **Shareable links** — subs view their tasks without needing an account
+- **Text/email notifications** when items are assigned or updated
+- **Subs mark complete + upload photo proof** — close the loop without phone calls
+- **Sub performance tracking** — response times, completion rates
 
-## Project Structure
+### 💰 QuickBooks Integration
+- **Direct sync** with QuickBooks Online (or CSV/IIF export for Desktop)
+- **Auto-generate invoices** from approved estimates
+- **Expense tracking per project** — know your real margins
+- **P&L per project** — profitability at a glance
+
+### 📄 PDF Reports & Exports
+- **Branded estimate/quote PDFs** — Zacher Construction logo, colors, professional layout
+- **Project progress reports** — timeline, completion %, photos
+- **Punch list reports** — per project or per unit, filterable
+- **Photo documentation reports** — AI analysis included
+- **Financial summaries** — cost vs. estimate, margins, change order impact
+
+---
+
+## 📱 Design Philosophy
+
+Built for someone who works with their hands, not at a desk.
+
+| Principle | Implementation |
+|-----------|---------------|
+| **Mobile-first** | Every feature works great on a phone in one hand |
+| **Thumb-friendly** | 44px minimum tap targets, bottom-anchored actions |
+| **Fast capture** | Photo → AI notes, voice-to-text, one-tap templates |
+| **Minimal data entry** | Smart defaults, autofill, clone from previous jobs |
+| **Dark + Light mode** | Toggle with persistence; light = warm off-white with strong contrast, dark = deep blacks with glass morphism |
+| **Responsive** | Fluid layouts from 375px → 1440px using CSS clamp() |
+| **Offline-capable** | Core features work without signal (sync when connected) |
+
+---
+
+## 🏗️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React + Vite + TypeScript |
+| **UI Framework** | Tailwind CSS + shadcn/ui |
+| **Backend** | Node.js + Express (or Next.js API routes) |
+| **Database** | PostgreSQL (via Supabase) |
+| **Auth** | Supabase Auth (email + magic link) |
+| **AI Vision** | OpenAI Vision API / Google Gemini |
+| **PDF Generation** | React-PDF / Puppeteer (server-side) |
+| **E-Signatures** | Custom canvas signature component |
+| **QuickBooks** | Intuit QuickBooks Online API (OAuth 2.0) |
+| **File Storage** | Supabase Storage (photos, documents) |
+| **Notifications** | Twilio (SMS) + SendGrid (email) |
+| **Hosting** | Vercel (frontend) + Railway/Supabase (backend) |
+| **PWA** | Service worker for offline support |
+
+---
+
+## 📁 Project Structure
+
 ```
-construction-mgmt-app/
+zc/
 ├── README.md
 ├── docs/
-│   ├── features.md
-│   ├── database-schema.md
-│   ├── api-design.md
-│   └── ui-wireframes.md
-├── app/                    # Main application
+│   ├── features.md          # Detailed feature specifications
+│   ├── database-schema.md   # Full DB schema + relationships
+│   ├── api-design.md        # REST API endpoints
+│   ├── ui-wireframes.md     # Screen-by-screen wireframes
+│   └── ai-analysis.md       # AI photo analysis architecture
+├── app/
+│   ├── public/
 │   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── hooks/
-│   │   ├── lib/
-│   │   ├── ai/            # Photo analysis module
-│   │   └── integrations/  # QuickBooks, e-sign
+│   │   ├── components/      # Reusable UI components
+│   │   │   ├── ui/          # shadcn/ui base components
+│   │   │   ├── estimates/   # Estimate builder components
+│   │   │   ├── projects/    # Project management views
+│   │   │   ├── punch/       # Punch list components
+│   │   │   ├── photos/      # Photo capture + AI analysis
+│   │   │   └── signatures/  # E-signature components
+│   │   ├── pages/           # Route-level page components
+│   │   ├── hooks/           # Custom React hooks
+│   │   ├── lib/             # Utilities, helpers, constants
+│   │   ├── ai/              # AI photo analysis module
+│   │   ├── integrations/    # QuickBooks, SMS, email
+│   │   └── styles/          # Global styles, theme config
+│   ├── supabase/
+│   │   ├── migrations/      # Database migrations
+│   │   └── functions/       # Edge functions (AI, PDF, etc.)
 │   └── ...
-└── scripts/
+├── scripts/                 # Build, deploy, seed scripts
+└── .github/
+    └── workflows/           # CI/CD
 ```
 
-## Status
-- [x] Project initialized
+---
+
+## 🗺️ Roadmap
+
+### Phase 1 — Foundation
 - [ ] Database schema design
-- [ ] UI wireframes / mockups
-- [ ] Frontend scaffold
-- [ ] Core CRUD (projects, units, punch lists)
-- [ ] Estimate builder + PDF export
-- [ ] E-signature flow
+- [ ] UI wireframes & design system
+- [ ] Auth + user management
+- [ ] Project CRUD (create, view, edit, archive)
+- [ ] Dark/light mode + responsive layout
+
+### Phase 2 — Core Features
+- [ ] Estimate builder + templates
+- [ ] PDF export (estimates/quotes)
+- [ ] Punch lists (per project, per unit)
+- [ ] Photo upload + tagging
+
+### Phase 3 — Intelligence
 - [ ] AI photo analysis integration
-- [ ] QuickBooks integration
-- [ ] Testing & polish
+- [ ] Market-rate pricing engine
+- [ ] Man-hours calculator by trade
+- [ ] Auto-generated inspection notes
+
+### Phase 4 — Coordination
+- [ ] Sub contractor management
+- [ ] Shareable punch list links (no login)
+- [ ] SMS/email notifications
+- [ ] Sub completion + photo proof flow
+
+### Phase 5 — Business
+- [ ] E-signature flow
+- [ ] QuickBooks Online integration
+- [ ] Financial reports (P&L per project)
+- [ ] Offline/PWA support
+
+---
+
+## 🚀 Getting Started
+
+```bash
+# Clone the repo
+git clone https://github.com/sardoru/zc.git
+cd zc
+
+# Install dependencies (once app is scaffolded)
+cd app && npm install
+
+# Set up environment variables
+cp .env.example .env.local
+
+# Run development server
+npm run dev
+```
+
+---
+
+## 📝 License
+
+Private — Built exclusively for Zacher Construction LLC.
+
+---
+
+*Built with ☕ and purpose.*
