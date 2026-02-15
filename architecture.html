@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zacher Construction — Architecture</title>
+  <style>
+    :root {
+      --bg: #fafaf9;
+      --bg-card: #ffffff;
+      --bg-code: #f5f5f4;
+      --text: #1c1917;
+      --text-muted: #78716c;
+      --border: #e7e5e4;
+      --accent: #d97706;
+      --accent-light: #fef3c7;
+      --accent-dark: #92400e;
+      --green: #16a34a;
+      --green-light: #dcfce7;
+      --blue: #2563eb;
+      --blue-light: #dbeafe;
+      --purple: #7c3aed;
+      --purple-light: #ede9fe;
+      --red: #dc2626;
+      --red-light: #fee2e2;
+      --teal: #0d9488;
+      --teal-light: #ccfbf1;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0c0a09;
+        --bg-card: #1c1917;
+        --bg-code: #292524;
+        --text: #fafaf9;
+        --text-muted: #a8a29e;
+        --border: #44403c;
+        --accent-light: #451a03;
+        --green-light: #052e16;
+        --blue-light: #172554;
+        --purple-light: #2e1065;
+        --red-light: #450a0a;
+        --teal-light: #042f2e;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header h1 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.5rem;
+    }
+
+    .header h1 span { color: var(--accent); }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin: 0.25rem;
+    }
+
+    .badge-amber { background: var(--accent-light); color: var(--accent-dark); }
+    .badge-green { background: var(--green-light); color: var(--green); }
+    .badge-blue { background: var(--blue-light); color: var(--blue); }
+    .badge-purple { background: var(--purple-light); color: var(--purple); }
+
+    .tech-badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.25rem;
+      margin-top: 1rem;
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 3rem;
+    }
+
+    .section h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .section > p {
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      font-size: 0.95rem;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+    }
+
+    .card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card p, .card li {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .card ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .card ul li::before {
+      content: "→ ";
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Grid layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    @media (min-width: 640px) {
+      .grid-2 { grid-template-columns: 1fr 1fr; }
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (min-width: 1024px) {
+      .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    /* Architecture Diagram */
+    .arch-diagram {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      overflow-x: auto;
+    }
+
+    .arch-row {
+      display: flex;
+      align-items: stretch;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .arch-row:last-child { margin-bottom: 0; }
+
+    .arch-box {
+      flex: 1;
+      min-width: 120px;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 2px solid transparent;
+    }
+
+    .arch-box small {
+      display: block;
+      font-weight: 400;
+      font-size: 0.7rem;
+      margin-top: 0.15rem;
+      opacity: 0.75;
+    }
+
+    .arch-box.amber { background: var(--accent-light); color: var(--accent-dark); border-color: var(--accent); }
+    .arch-box.green { background: var(--green-light); color: var(--green); border-color: var(--green); }
+    .arch-box.blue  { background: var(--blue-light); color: var(--blue); border-color: var(--blue); }
+    .arch-box.purple { background: var(--purple-light); color: var(--purple); border-color: var(--purple); }
+    .arch-box.teal  { background: var(--teal-light); color: var(--teal); border-color: var(--teal); }
+    .arch-box.red   { background: var(--red-light); color: var(--red); border-color: var(--red); }
+
+    .arch-connector {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin: 0.5rem 0;
+      opacity: 0.5;
+    }
+
+    /* Data model table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .data-table th, .data-table td {
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-table th {
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      background: var(--bg-code);
+    }
+
+    .data-table td { color: var(--text-muted); }
+    .data-table td:first-child { color: var(--text); font-weight: 600; }
+
+    .data-table tr:last-child td { border-bottom: none; }
+
+    /* File tree */
+    .file-tree {
+      background: var(--bg-code);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.9;
+      overflow-x: auto;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .file-tree .dir { color: var(--blue); font-weight: 600; }
+    .file-tree .file { color: var(--text); }
+    .file-tree .comment { color: var(--text-muted); opacity: 0.6; font-style: italic; }
+
+    /* Flow diagram */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin: 0.75rem 0;
+    }
+
+    .flow-step {
+      padding: 0.4rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .flow-arrow {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      opacity: 0.4;
+    }
+
+    .flow-step.amber { background: var(--accent-light); color: var(--accent-dark); }
+    .flow-step.green { background: var(--green-light); color: var(--green); }
+    .flow-step.blue  { background: var(--blue-light); color: var(--blue); }
+    .flow-step.purple { background: var(--purple-light); color: var(--purple); }
+    .flow-step.teal  { background: var(--teal-light); color: var(--teal); }
+
+    /* Responsive tweaks */
+    @media (max-width: 640px) {
+      .arch-box { min-width: 90px; font-size: 0.7rem; padding: 0.6rem; }
+      .arch-box small { font-size: 0.6rem; }
+      .container { padding: 1.25rem 1rem 3rem; }
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2.5rem 0;
+    }
+
+    .icon {
+      width: 1.1em;
+      height: 1.1em;
+      vertical-align: -0.15em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header">
+      <h1>🏗️ <span>Zacher Construction</span> — Architecture</h1>
+      <p>System design and technical reference for the construction management application.</p>
+      <div class="tech-badges">
+        <span class="badge badge-blue">React 19</span>
+        <span class="badge badge-purple">TypeScript 5.9</span>
+        <span class="badge badge-amber">Tailwind CSS 4</span>
+        <span class="badge badge-green">Vite 7</span>
+        <span class="badge badge-blue">React Router 7</span>
+        <span class="badge badge-purple">Lucide Icons</span>
+      </div>
+    </div>
+
+    <!-- High-Level Architecture -->
+    <div class="section">
+      <h2>System Architecture</h2>
+      <p>Static SPA deployed to Vercel. Zero backend — all data lives in the browser.</p>
+
+      <div class="arch-diagram">
+        <!-- Layer 1: Entry -->
+        <div class="arch-row">
+          <div class="arch-box amber" style="flex: 1;">
+            index.html
+            <small>Entry point + OG meta tags</small>
+          </div>
+          <div class="arch-box amber" style="flex: 1;">
+            main.tsx
+            <small>React root + StrictMode</small>
+          </div>
+          <div class="arch-box amber" style="flex: 1;">
+            App.tsx
+            <small>BrowserRouter + Routes + Seed</small>
+          </div>
+        </div>
+
+        <div class="arch-connector">▼ renders</div>
+
+        <!-- Layer 2: Shell -->
+        <div class="arch-row">
+          <div class="arch-box blue" style="flex: 1;">
+            Layout.tsx
+            <small>Sidebar (desktop) · Mobile nav overlay · Theme toggle · &lt;Outlet /&gt;</small>
+          </div>
+        </div>
+
+        <div class="arch-connector">▼ routes into</div>
+
+        <!-- Layer 3: Pages -->
+        <div class="arch-row">
+          <div class="arch-box green">Dashboard<small>Overview</small></div>
+          <div class="arch-box green">Projects<small>CRUD</small></div>
+          <div class="arch-box green">Estimates<small>Builder</small></div>
+          <div class="arch-box green">PunchLists<small>Tracking</small></div>
+          <div class="arch-box green">Photos<small>AI Analysis</small></div>
+        </div>
+        <div class="arch-row">
+          <div class="arch-box green">Subs<small>Rolodex</small></div>
+          <div class="arch-box green">E-Signatures<small>Canvas</small></div>
+          <div class="arch-box green">PDF Export<small>Print</small></div>
+          <div class="arch-box green">Reports<small>Analytics</small></div>
+          <div class="arch-box green">Settings<small>Config</small></div>
+        </div>
+
+        <div class="arch-connector">▼ read / write</div>
+
+        <!-- Layer 4: Data -->
+        <div class="arch-row">
+          <div class="arch-box purple" style="flex: 2;">
+            store.ts
+            <small>localStorage CRUD (zc_ prefix) · Seed data · UID generator</small>
+          </div>
+          <div class="arch-box purple" style="flex: 1;">
+            types.ts
+            <small>Interfaces · Constants · Color maps</small>
+          </div>
+          <div class="arch-box teal" style="flex: 1;">
+            useTheme.ts
+            <small>Light / Dark / System</small>
+          </div>
+        </div>
+
+        <div class="arch-connector">▼ persists to</div>
+
+        <!-- Layer 5: Storage -->
+        <div class="arch-row">
+          <div class="arch-box red" style="flex: 1;">
+            Browser localStorage
+            <small>zc_projects · zc_punchItems · zc_subs · zc_estimates · zc_photos · zc_signatures · zc_settings · zc_theme</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- File Structure -->
+    <div class="section">
+      <h2>Project Structure</h2>
+      <p>18 source files, ~8,500 lines of code.</p>
+
+      <div class="file-tree">
+<span class="dir">src/</span>
+├── <span class="file">main.tsx</span>              <span class="comment"># React root entry</span>
+├── <span class="file">App.tsx</span>               <span class="comment"># Router + seed init</span>
+├── <span class="file">index.css</span>             <span class="comment"># Tailwind v4 + amber theme</span>
+├── <span class="file">types.ts</span>              <span class="comment"># All interfaces &amp; constants</span>
+├── <span class="file">store.ts</span>              <span class="comment"># localStorage CRUD layer</span>
+├── <span class="dir">hooks/</span>
+│   └── <span class="file">useTheme.ts</span>       <span class="comment"># Theme state + system detection</span>
+├── <span class="dir">components/</span>
+│   └── <span class="file">Layout.tsx</span>        <span class="comment"># Shell: sidebar, mobile nav, outlet</span>
+└── <span class="dir">pages/</span>
+    ├── <span class="file">Dashboard.tsx</span>     <span class="comment"># Summary cards, attention items</span>
+    ├── <span class="file">Projects.tsx</span>      <span class="comment"># Project CRUD + filters</span>
+    ├── <span class="file">Estimates.tsx</span>     <span class="comment"># Estimate builder + quick estimator</span>
+    ├── <span class="file">PunchLists.tsx</span>    <span class="comment"># Punch tracking + status workflow</span>
+    ├── <span class="file">PhotoAnalysis.tsx</span> <span class="comment"># AI photo inspection (mock)</span>
+    ├── <span class="file">SubContractors.tsx</span><span class="comment"># Sub rolodex + performance</span>
+    ├── <span class="file">ESignatures.tsx</span>   <span class="comment"># Signature pad + audit trail</span>
+    ├── <span class="file">PDFExport.tsx</span>     <span class="comment"># Print-ready documents</span>
+    ├── <span class="file">Reports.tsx</span>       <span class="comment"># Analytics tabs</span>
+    └── <span class="file">Settings.tsx</span>      <span class="comment"># Config + data management</span>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Data Model -->
+    <div class="section">
+      <h2>Data Model</h2>
+      <p>Seven entities stored as JSON arrays in localStorage. No relational DB — IDs are cross-referenced in code.</p>
+
+      <div class="card" style="overflow-x: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Entity</th>
+              <th>Key</th>
+              <th>Key Fields</th>
+              <th>Relationships</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Project</td>
+              <td>zc_projects</td>
+              <td>name, client, address, status, type, sqFootage, budget, spent, startDate</td>
+              <td>Referenced by PunchItem, Estimate, PhotoAnalysis</td>
+            </tr>
+            <tr>
+              <td>PunchItem</td>
+              <td>zc_punchItems</td>
+              <td>description, unit, area, status, priority, trade, assignedTo, dueDate</td>
+              <td>→ Project (projectId), → SubContractor (assignedTo)</td>
+            </tr>
+            <tr>
+              <td>SubContractor</td>
+              <td>zc_subs</td>
+              <td>name, company, trade, phone, email, rate, rating, completedJobs</td>
+              <td>Referenced by PunchItem (assignedTo)</td>
+            </tr>
+            <tr>
+              <td>Estimate</td>
+              <td>zc_estimates</td>
+              <td>clientName, clientEmail, projectType, sqFootage, lineItems[], status</td>
+              <td>→ Project (projectId, optional), → Signature</td>
+            </tr>
+            <tr>
+              <td>PhotoAnalysis</td>
+              <td>zc_photos</td>
+              <td>photoUrl, aiNotes, issuesFound[], correctItems[], suggestedSub</td>
+              <td>→ Project (projectId)</td>
+            </tr>
+            <tr>
+              <td>Signature</td>
+              <td>zc_signatures</td>
+              <td>signerName, signerEmail, signatureData (base64), signedAt, ipAddress</td>
+              <td>→ Estimate (estimateId)</td>
+            </tr>
+            <tr>
+              <td>AppSettings</td>
+              <td>zc_settings</td>
+              <td>companyName, ownerName, phone, email, address, defaultLaborRates{}</td>
+              <td>Global config (singleton)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Key Workflows -->
+    <div class="section">
+      <h2>Key Workflows</h2>
+      <p>Core user flows through the system.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>📋 Punch Item Lifecycle</h3>
+          <div class="flow">
+            <span class="flow-step amber">Open</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step blue">In Progress</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step green">Resolved</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step purple">Verified</span>
+          </div>
+          <p>One-tap status advancement. Overdue detection based on due date. Items auto-surface in Dashboard "Attention Needed" when urgent/high priority or past due.</p>
+        </div>
+
+        <div class="card">
+          <h3>💰 Estimate Workflow</h3>
+          <div class="flow">
+            <span class="flow-step amber">Draft</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step blue">Sent</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step green">Approved</span>
+          </div>
+          <div class="flow" style="margin-top: 0.25rem;">
+            <span class="flow-step amber" style="visibility: hidden;">Draft</span>
+            <span class="flow-arrow" style="visibility: hidden;">→</span>
+            <span class="flow-step blue" style="visibility: hidden;">Sent</span>
+            <span class="flow-arrow">↘</span>
+            <span class="flow-step" style="background: var(--red-light); color: var(--red);">Rejected</span>
+          </div>
+          <p>Built with quick estimator (ballpark from sqft + trades) or full line-item builder. Sent estimates appear in E-Signatures for client sign-off.</p>
+        </div>
+
+        <div class="card">
+          <h3>📸 Photo Analysis Flow</h3>
+          <div class="flow">
+            <span class="flow-step amber">Upload</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step blue">AI Scan</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step green">Results</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step purple">Saved</span>
+          </div>
+          <p>Drag-and-drop or file picker. Mock AI generates trade-specific issues, correct items, and suggests which sub should review. History persisted for reference.</p>
+        </div>
+
+        <div class="card">
+          <h3>✍️ E-Signature Flow</h3>
+          <div class="flow">
+            <span class="flow-step blue">Sent Estimate</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step amber">Review</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step teal">Sign (Canvas)</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step green">Approved</span>
+          </div>
+          <p>Pending estimates queue → full summary preview → canvas pad (mouse + touch) → audit trail recorded (name, email, timestamp, IP). Estimate status auto-updates to "approved".</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Routing -->
+    <div class="section">
+      <h2>Routing Map</h2>
+      <p>React Router v7 with nested layout. All routes wrapped in the Layout shell.</p>
+
+      <div class="card" style="overflow-x: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Path</th>
+              <th>Component</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>/</td><td>Dashboard</td><td>Overview — summary cards, attention items, quick actions, active projects</td></tr>
+            <tr><td>/projects</td><td>Projects</td><td>Project CRUD — filter by status, search, budget tracking</td></tr>
+            <tr><td>/estimates</td><td>Estimates</td><td>Estimate builder — quick estimator, full line-item editor</td></tr>
+            <tr><td>/punch-lists</td><td>PunchLists</td><td>Punch tracking — multi-filter, grouped by project, status workflow</td></tr>
+            <tr><td>/photos</td><td>PhotoAnalysis</td><td>AI photo inspection — upload, mock analysis, history</td></tr>
+            <tr><td>/subs</td><td>SubContractors</td><td>Sub rolodex — performance stats, trade filter, contact links</td></tr>
+            <tr><td>/signatures</td><td>ESignatures</td><td>Digital signatures — canvas pad, audit trail, pending queue</td></tr>
+            <tr><td>/export</td><td>PDFExport</td><td>Print/PDF — estimates, project reports, punch lists, financials</td></tr>
+            <tr><td>/reports</td><td>Reports</td><td>Analytics — 5 tabs: financial, punch, subs, projects, estimates</td></tr>
+            <tr><td>/settings</td><td>Settings</td><td>Config — company info, theme, labor rates, data import/export</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Design System -->
+    <div class="section">
+      <h2>Design System</h2>
+      <p>Mobile-first, dark-mode-ready, accessibility-conscious.</p>
+
+      <div class="grid-3">
+        <div class="card">
+          <h3>🎨 Color Palette</h3>
+          <ul>
+            <li><strong>Accent:</strong> Amber 500–600 (links, icons, active states)</li>
+            <li><strong>Neutrals:</strong> Stone scale (50–950)</li>
+            <li><strong>Status:</strong> Green (success), Red (error/overdue), Blue (info)</li>
+            <li><strong>Dark mode:</strong> Stone-950 bg, Stone-900 cards</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>📱 Responsive Strategy</h3>
+          <ul>
+            <li><strong>Mobile:</strong> Overlay sidebar, stacked cards, hamburger nav</li>
+            <li><strong>Tablet (md):</strong> 2-column grids, expanded padding</li>
+            <li><strong>Desktop (lg):</strong> Fixed 256px sidebar, 3–4 col grids</li>
+            <li><strong>Touch targets:</strong> 44px minimum on all interactive elements</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🌗 Theme System</h3>
+          <ul>
+            <li><strong>Modes:</strong> Light, Dark, System (auto-detect)</li>
+            <li><strong>Mechanism:</strong> <code>dark</code> class on <code>&lt;html&gt;</code></li>
+            <li><strong>Persistence:</strong> localStorage (<code>zc_theme</code>)</li>
+            <li><strong>Toggle:</strong> Sidebar footer + Settings page + mobile header</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🧱 Component Patterns</h3>
+          <ul>
+            <li><strong>Cards:</strong> <code>rounded-xl</code>, subtle shadow, border</li>
+            <li><strong>Forms:</strong> Slide-over panels (projects, punch) or modals (subs)</li>
+            <li><strong>Tables:</strong> Responsive — tables on desktop, cards on mobile</li>
+            <li><strong>Badges:</strong> Color-coded status/priority/trade pills</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🔤 Typography</h3>
+          <ul>
+            <li><strong>Font:</strong> System stack (system-ui, -apple-system)</li>
+            <li><strong>Rendering:</strong> Antialiased on macOS + Windows</li>
+            <li><strong>Scale:</strong> text-xs through text-3xl</li>
+            <li><strong>Weight:</strong> 400 body, 600 labels, 700–800 headings</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>⚡ Performance</h3>
+          <ul>
+            <li><strong>Build:</strong> Vite 7 (sub-second HMR)</li>
+            <li><strong>CSS:</strong> Tailwind v4 JIT (zero unused CSS)</li>
+            <li><strong>Bundle:</strong> Tree-shaken Lucide icons</li>
+            <li><strong>Data:</strong> Sync localStorage reads (no async waterfalls)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Trades -->
+    <div class="section">
+      <h2>Supported Trades</h2>
+      <p>11 construction trades with configurable default labor rates.</p>
+
+      <div class="card" style="overflow-x: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Trade</th>
+              <th>Label</th>
+              <th>Default Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>general</td><td>General / GC</td><td>$55/hr</td></tr>
+            <tr><td>electrical</td><td>Electrical</td><td>$75/hr</td></tr>
+            <tr><td>plumbing</td><td>Plumbing</td><td>$70/hr</td></tr>
+            <tr><td>hvac</td><td>HVAC</td><td>$80/hr</td></tr>
+            <tr><td>drywall</td><td>Drywall</td><td>$50/hr</td></tr>
+            <tr><td>painting</td><td>Painting</td><td>$45/hr</td></tr>
+            <tr><td>flooring</td><td>Flooring</td><td>$55/hr</td></tr>
+            <tr><td>roofing</td><td>Roofing</td><td>$65/hr</td></tr>
+            <tr><td>framing</td><td>Framing</td><td>$60/hr</td></tr>
+            <tr><td>concrete</td><td>Concrete</td><td>$60/hr</td></tr>
+            <tr><td>landscaping</td><td>Landscaping</td><td>$45/hr</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Deployment -->
+    <div class="section">
+      <h2>Deployment</h2>
+      <p>Static build deployed to Vercel with zero server-side requirements.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>🚀 Build Pipeline</h3>
+          <div class="flow">
+            <span class="flow-step amber">git push</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step blue">Vercel CI</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step purple">tsc + vite build</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step green">CDN Deploy</span>
+          </div>
+          <ul style="margin-top: 0.75rem;">
+            <li>Source: <code>github.com/sardoru/zacher-construction</code></li>
+            <li>Framework: Auto-detected (Vite)</li>
+            <li>Output: <code>dist/</code> (static HTML + JS + CSS)</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>📦 Build Commands</h3>
+          <ul>
+            <li><code>npm install</code> — install dependencies</li>
+            <li><code>npm run dev</code> — local dev server (port 5173)</li>
+            <li><code>npm run build</code> — TypeScript check + production build</li>
+            <li><code>npm run preview</code> — preview production build</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Roadmap -->
+    <div class="section">
+      <h2>Roadmap</h2>
+      <p>Planned features for future iterations.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>🔜 Near Term</h3>
+          <ul>
+            <li>QuickBooks Online integration (invoices, expense sync)</li>
+            <li>Real AI photo analysis (GPT-4 Vision / Claude)</li>
+            <li>Shareable sub links (view punch items without login)</li>
+            <li>Push notifications for overdue items</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🔮 Future</h3>
+          <ul>
+            <li>Supabase backend (multi-device sync, auth, real-time)</li>
+            <li>Public quick-intake quote form (embeddable)</li>
+            <li>Calendar view for project timelines</li>
+            <li>File attachments (plans, permits, contracts)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem;">
+      Zacher Construction LLC — Architecture Reference · Built with React, TypeScript, Tailwind CSS
+    </div>
+
+  </div>
+</body>
+</html>
